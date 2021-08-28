@@ -47,7 +47,7 @@ const Main = styled.div`
       transform: translateY(-1px);
   }
 `;
-const Brand = styled.div`
+export const Brand = styled.div`
   display: flex;
   align-items: center;
   font-size: 25px;
