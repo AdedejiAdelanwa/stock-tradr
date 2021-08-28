@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import ApiService from '../services/apiservice';
+import Ticker from './Ticker';
 
 const PageWrapper = styled.div`
   padding: 10px 20px;
@@ -21,6 +22,9 @@ const TickerListWrapper = styled.ul`
     justify-content: center;
 
     border-bottom: 1px solid #0991c0;
+    p {
+      font-weight: bold;
+    }
   }
 `;
 
@@ -48,10 +52,7 @@ const Stocks = () => {
       <h1>List</h1>
       <TickerListWrapper>
         {tickers.map((ticker) => (
-          <li key={ticker.ticker}>
-            <p>{ticker.ticker}</p>
-            <small>{ticker.name.slice(0, 15)}...</small>
-          </li>
+          <Ticker key={ticker.ticker} ticker={ticker} />
         ))}
       </TickerListWrapper>
     </PageWrapper>
