@@ -59,9 +59,10 @@ const TickerListWrapper = styled.ul`
 const Stocks = () => {
   const [tickers, setTickers] = useState([]);
   const [filterParam, setFilterParam] = useState('');
-  //   const [nextUrl, setNextUrl] = useState('');
+
   const apiService = new ApiService();
-  useEffect(() => {
+
+  function getTickers() {
     let tickerList = JSON.parse(localStorage.getItem('tickers'));
     if (tickerList !== null || tickerList === []) {
       setTickers(tickerList);
@@ -70,11 +71,18 @@ const Stocks = () => {
         try {
           const { data } = await apiService.getTickers();
           localStorage.setItem('tickers', JSON.stringify(data.results));
+          setTickers((prevTickers) => [
+            ...new Set([...prevTickers, ...JSON.parse(localStorage.getItem('tickers'))]),
+          ]);
         } catch (error) {
           alert(error);
         }
       })();
     }
+  }
+
+  useEffect(() => {
+    getTickers();
   }, []);
   return (
     <PageWrapper>
