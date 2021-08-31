@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import logo from '../assets/nasdaq-logo.png';
 
@@ -31,7 +32,7 @@ const Main = styled.div`
 
   transform: translate(-50%, -50%);
 
-  button {
+  a {
     margin-top: 30px;
     padding: 10px 30px;
     font-weight: bold;
@@ -39,11 +40,12 @@ const Main = styled.div`
     background-color: #0991c0;
     border: none;
     border-radius: 16px;
+    text-decoration: none;
     box-shadow: 0px 2px 4px rgba(9, 145, 152,0.7);
     cursor: pointer;
     animation: all ease .3s;
   }
-  button:hover{
+  a:hover{
       transform: translateY(-1px);
   }
 `;
@@ -66,7 +68,7 @@ const Home = () => {
           <img src={logo} alt="Nasdaq logo" />
           Nasdaq
         </Brand>
-        <button>STOCKS LIST &#10230;</button>
+        <Link to="/stocks">STOCKS LIST &#10230;</Link>
       </Main>
       <div>
         By:

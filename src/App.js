@@ -1,14 +1,18 @@
 import React from 'react';
-// import Home from './components/Home';
-
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+import Home from './components/Home';
 import Stocks from './components/Stocks';
 
 function App() {
   return (
-    <div>
-      {/* <Home /> */}
-      <Stocks />
-    </div>
+    <Router>
+      <Route exact path="/">
+        <Home />
+      </Route>
+      <Route path="/stocks">
+        <Stocks />
+      </Route>
+    </Router>
   );
 }
 
