@@ -9,9 +9,19 @@ export default class ApiService {
     });
   }
 
-  getTickers = (active = true, sort = 'ticker', order = 'asc', limit = 10) => {
+  getTickers = (cursor, active = true, sort = 'ticker', order = 'asc', limit = 10) => {
+    let params = {
+      market: this.market,
+      apiKey: this.apiKey,
+      active,
+      sort,
+      order,
+      limit,
+      cursor,
+    };
+    if (!cursor) delete params.cursor;
     return this.apiClient.get('/tickers', {
-      params: { market: this.market, apiKey: this.apiKey, active, sort, order, limit },
+      params: params,
     });
   };
 }

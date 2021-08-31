@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import InfiniteScroll from 'react-infinite-scroll-component';
+
 import logo from '../assets/nasdaq-logo.png';
 import ApiService from '../services/apiservice';
 import { Brand } from './Home';
@@ -18,6 +20,8 @@ const Logo = styled(Brand)`
 
 const PageWrapper = styled.div`
   padding: 10px 20px;
+  height: 100vh;
+  overflow-y: auto;
   input {
     width: 100%;
     padding: 7px 10px;
@@ -36,56 +40,60 @@ const PageWrapper = styled.div`
   }
 `;
 
-const TickerListWrapper = styled.ul`
-  display: grid;
-  padding-left: 0px;
-  list-style-type: none;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  grid-gap: 10px;
+const scrollerSTyle = {
+  height: '100vh',
+  display: 'grid',
+  paddingLeft: '0px',
+  listStyleType: 'none',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+  gridGap: '10px',
+};
 
-  li {
-    height: 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    border-bottom: 1px solid #0991c0;
-    p {
-      font-weight: bold;
-    }
-  }
-`;
+const tickerStyle = {
+  height: '60px',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+};
 
 const Stocks = () => {
   const [tickers, setTickers] = useState([]);
   const [filterParam, setFilterParam] = useState('');
+  const [nextUrl, setNextUrl] = useState('');
+  const [prevNextUrl, setPrevNextUrl] = useState('');
+  const [hasMore, sethasMore] = useState(true);
 
   const apiService = new ApiService();
 
-  function getTickers() {
-    let tickerList = JSON.parse(localStorage.getItem('tickers'));
-    if (tickerList !== null || tickerList === []) {
-      setTickers(tickerList);
-    } else {
-      (async () => {
-        try {
-          const { data } = await apiService.getTickers();
-          localStorage.setItem('tickers', JSON.stringify(data.results));
-          setTickers((prevTickers) => [
-            ...new Set([...prevTickers, ...JSON.parse(localStorage.getItem('tickers'))]),
-          ]);
-        } catch (error) {
-          alert(error);
-        }
-      })();
+  async function getStockTickers(cursor) {
+    try {
+      const { data } = await apiService.getTickers(cursor);
+      localStorage.setItem('tickers', JSON.stringify(data.results));
+      localStorage.setItem('nextUrl', data.next_url);
+      let newData = [...tickers, ...data.results];
+
+      setTickers(newData);
+      setNextUrl(data.next_url);
+    } catch (error) {
+      alert(error);
     }
   }
 
+  const fetchMoreTickers = () => {
+    if (nextUrl && nextUrl !== prevNextUrl) {
+      let index = nextUrl.lastIndexOf('=') + 1;
+      let cursor = nextUrl.slice(index);
+      setPrevNextUrl(nextUrl);
+      getStockTickers(cursor);
+      sethasMore(false);
+    }
+  };
+
   useEffect(() => {
-    getTickers();
+    getStockTickers();
   }, []);
   return (
-    <PageWrapper>
+    <PageWrapper onScroll={fetchMoreTickers}>
       <Logo>
         <img src={logo} alt="Nasdaq logo" />
       </Logo>
@@ -97,7 +105,14 @@ const Stocks = () => {
       />
 
       <h2>Stocks</h2>
-      <TickerListWrapper>
+
+      <InfiniteScroll
+        dataLength={tickers.length}
+        next={fetchMoreTickers}
+        hasMore={hasMore}
+        loader={<h4>Loading...</h4>}
+        style={scrollerSTyle}
+      >
         {tickers &&
           tickers
             .filter((ticker) => {
@@ -110,8 +125,10 @@ const Stocks = () => {
                 return ticker;
               }
             })
-            .map((ticker) => <Ticker key={ticker.ticker} ticker={ticker} />)}
-      </TickerListWrapper>
+            .map((ticker) => {
+              return <Ticker style={tickerStyle} key={ticker.ticker} ticker={ticker} />;
+            })}
+      </InfiniteScroll>
     </PageWrapper>
   );
 };
