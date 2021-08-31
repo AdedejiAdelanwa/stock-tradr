@@ -1,12 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroll-component';
-
 import logo from '../assets/nasdaq-logo.png';
 import ApiService from '../services/apiservice';
 import { Brand } from './Home';
 import Ticker from './Ticker';
 
+const Header = styled.nav`
+  width: 100%;
+  height: 8vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  a {
+    text-decoration: none;
+    font-weight: bold;
+    color: #0991c0;
+  }
+`;
 const Logo = styled(Brand)`
   img {
     width: 50px;
@@ -94,9 +107,13 @@ const Stocks = () => {
   }, []);
   return (
     <PageWrapper onScroll={fetchMoreTickers}>
-      <Logo>
-        <img src={logo} alt="Nasdaq logo" />
-      </Logo>
+      <Header>
+        <Logo>
+          <img src={logo} alt="Nasdaq logo" />
+        </Logo>
+        <Link to="/">&#10229;</Link>
+      </Header>
+
       <input
         type="text"
         value={filterParam}
