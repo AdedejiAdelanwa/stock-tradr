@@ -1,9 +1,13 @@
-import Home from './components/Home';
+import React from 'react';
+// import Home from './components/Home';
+
+import Stocks from './components/Stocks';
 
 function App() {
   return (
     <div>
-      <Home />
+      {/* <Home /> */}
+      <Stocks />
     </div>
   );
 }
