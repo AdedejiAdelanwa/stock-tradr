@@ -42,10 +42,14 @@ const PageWrapper = styled.div`
     border-radius: 16px;
     border: 1px solid grey;
   }
+  a {
+    text-decoration: none;
+  }
   input:focus {
     outline: none;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
+
   @media only screen and (min-width: 768px) {
     input {
       width: 50%;
@@ -96,9 +100,10 @@ const Stocks = () => {
     if (nextUrl && nextUrl !== prevNextUrl) {
       let index = nextUrl.lastIndexOf('=') + 1;
       let cursor = nextUrl.slice(index);
+
       setPrevNextUrl(nextUrl);
-      getStockTickers(cursor);
       sethasMore(false);
+      getStockTickers(cursor);
     }
   };
 
@@ -143,7 +148,19 @@ const Stocks = () => {
               }
             })
             .map((ticker) => {
-              return <Ticker style={tickerStyle} key={ticker.ticker} ticker={ticker} />;
+              return (
+                <Link
+                  key={ticker.ticker}
+                  to={{
+                    pathname: `/stocks/${ticker.ticker}`,
+                    state: {
+                      ticker,
+                    },
+                  }}
+                >
+                  <Ticker style={tickerStyle} ticker={ticker} />
+                </Link>
+              );
             })}
       </InfiniteScroll>
     </PageWrapper>
