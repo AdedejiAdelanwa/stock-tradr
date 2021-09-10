@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import Home from './components/Home';
+import StockDetails from './components/StockDetails';
 import Stocks from './components/Stocks';
 
 function App() {
@@ -9,8 +10,11 @@ function App() {
       <Route exact path="/">
         <Home />
       </Route>
-      <Route path="/stocks">
+      <Route exact path="/stocks">
         <Stocks />
+      </Route>
+      <Route exact path="/stocks/:ticker">
+        <StockDetails />
       </Route>
     </Router>
   );

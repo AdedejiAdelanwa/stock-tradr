@@ -7,7 +7,32 @@ import ApiService from '../services/apiservice';
 import { Brand } from './Home';
 import Ticker from './Ticker';
 
-const Header = styled.nav`
+export const PageWrapper = styled.div`
+  padding: 10px 20px;
+  height: 100vh;
+
+  input {
+    width: 100%;
+    padding: 7px 10px;
+    margin: 20px 0;
+    border-radius: 16px;
+    border: 1px solid grey;
+  }
+  a {
+    text-decoration: none;
+  }
+  input:focus {
+    outline: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  @media only screen and (min-width: 768px) {
+    input {
+      width: 50%;
+    }
+  }
+`;
+export const Header = styled.nav`
   width: 100%;
   height: 8vh;
   display: flex;
@@ -31,35 +56,14 @@ const Logo = styled(Brand)`
   }
 `;
 
-const PageWrapper = styled.div`
-  padding: 10px 20px;
-  height: 100vh;
-  overflow-y: auto;
-  input {
-    width: 100%;
-    padding: 7px 10px;
-    margin: 20px 0;
-    border-radius: 16px;
-    border: 1px solid grey;
-  }
-  input:focus {
-    outline: none;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  }
-  @media only screen and (min-width: 768px) {
-    input {
-      width: 50%;
-    }
-  }
-`;
-
 const scrollerSTyle = {
   height: '100vh',
-  display: 'grid',
-  paddingLeft: '0px',
-  listStyleType: 'none',
+  // display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
   gridGap: '10px',
+  paddingLeft: '0px',
+  overflow: 'scroll',
+  listStyleType: 'none',
 };
 
 const tickerStyle = {
@@ -80,15 +84,21 @@ const Stocks = () => {
 
   async function getStockTickers(cursor) {
     try {
-      const { data } = await apiService.getTickers(cursor);
-      localStorage.setItem('tickers', JSON.stringify(data.results));
-      localStorage.setItem('nextUrl', data.next_url);
-      let newData = [...tickers, ...data.results];
+      const savedLcList = localStorage.getItem('tickers');
+      if (savedLcList && !cursor) {
+        setTickers(JSON.parse(savedLcList));
+      } else {
+        const { data } = await apiService.getTickers(cursor);
+        sethasMore(data.next_url !== '' || data.next_url !== null);
+        localStorage.setItem('nextUrl', data.next_url);
+        let newData = [...tickers, ...data.results];
+        localStorage.setItem('tickers', JSON.stringify(newData));
 
-      setTickers(newData);
-      setNextUrl(data.next_url);
+        setTickers(newData);
+        setNextUrl(data.next_url);
+      }
     } catch (error) {
-      alert(error);
+      sethasMore(true);
     }
   }
 
@@ -96,9 +106,10 @@ const Stocks = () => {
     if (nextUrl && nextUrl !== prevNextUrl) {
       let index = nextUrl.lastIndexOf('=') + 1;
       let cursor = nextUrl.slice(index);
+
       setPrevNextUrl(nextUrl);
+
       getStockTickers(cursor);
-      sethasMore(false);
     }
   };
 
@@ -106,7 +117,7 @@ const Stocks = () => {
     getStockTickers();
   }, []);
   return (
-    <PageWrapper onScroll={fetchMoreTickers}>
+    <PageWrapper>
       <Header>
         <Logo>
           <img src={logo} alt="Nasdaq logo" />
@@ -129,6 +140,7 @@ const Stocks = () => {
         hasMore={hasMore}
         loader={<h4>Loading...</h4>}
         style={scrollerSTyle}
+        endMessage={<h4>End of List</h4>}
       >
         {tickers &&
           tickers
@@ -143,7 +155,7 @@ const Stocks = () => {
               }
             })
             .map((ticker) => {
-              return <Ticker style={tickerStyle} key={ticker.ticker} ticker={ticker} />;
+              return <Ticker key={ticker.ticker} style={tickerStyle} ticker={ticker} />;
             })}
       </InfiniteScroll>
     </PageWrapper>

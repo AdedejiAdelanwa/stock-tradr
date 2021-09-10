@@ -5,7 +5,7 @@ export default class ApiService {
     this.market = market;
     this.apiKey = apiKey;
     this.apiClient = axios.create({
-      baseURL: `https://api.polygon.io/v3/reference`,
+      baseURL: `https://api.polygon.io`,
     });
   }
 
@@ -20,8 +20,25 @@ export default class ApiService {
       cursor,
     };
     if (!cursor) delete params.cursor;
-    return this.apiClient.get('/tickers', {
-      params: params,
+    return this.apiClient.get('/v3/reference/tickers', {
+      params,
+    });
+  };
+  getTickerDetails = (tickerName) => {
+    let params = {
+      apiKey: this.apiKey,
+    };
+    return this.apiClient.get(`/v1/meta/symbols/${tickerName}/company`, {
+      params,
+    });
+  };
+
+  getStockDetailsPreviousDay = (tickerName, date) => {
+    const params = {
+      apiKey: this.apiKey,
+    };
+    return this.apiClient.get(`/v1/open-close/${tickerName}/${date}`, {
+      params,
     });
   };
 }
