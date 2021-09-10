@@ -69,7 +69,7 @@ const StockDetails = () => {
       .then((res) => {
         return res.data;
       })
-      .catch((error) => console.log('Error:', error));
+      .catch((error) => alert(error));
   }
 
   function getCloseDay(ticker) {
