@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 import styled from 'styled-components';
 
@@ -12,14 +13,30 @@ const StockTicker = styled.li`
   p {
     font-weight: bold;
   }
+  a,
+  a:link,
+  a:hover,
+  a:visited {
+    text-decoration: none;
+    color: inherit;
+  }
 `;
 
 const Ticker = (props) => {
   const { ticker } = props;
   return (
     <StockTicker>
-      <p style={{ fontWeight: 'bold' }}>{ticker.ticker}</p>
-      <small>{ticker.name.slice(0, 15)}...</small>
+      <Link
+        to={{
+          pathname: `/stocks/${ticker.ticker}`,
+          state: {
+            ticker,
+          },
+        }}
+      >
+        <p style={{ fontWeight: 'bold' }}>{ticker.ticker}</p>
+        <small>{ticker.name.slice(0, 15)}...</small>
+      </Link>
     </StockTicker>
   );
 };
