@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import logo from '../assets/nasdaq-logo.png';
-import ApiService from '../services/apiservice';
+// import ApiService from '../services/apiservice';
+import usePagination from './usePagination';
 import { Brand } from './Home';
 import Ticker from './Ticker';
 
@@ -74,44 +75,8 @@ const tickerStyle = {
 };
 
 const Stocks = () => {
-  const [tickers, setTickers] = useState([]);
   const [filterParam, setFilterParam] = useState('');
-  const [nextUrl, setNextUrl] = useState('');
-  const [prevNextUrl, setPrevNextUrl] = useState('');
-  const [hasMore, sethasMore] = useState(true);
-
-  const apiService = new ApiService();
-
-  async function getStockTickers(cursor) {
-    try {
-      const savedLcList = localStorage.getItem('tickers');
-      if (savedLcList && !cursor) {
-        setTickers(JSON.parse(savedLcList));
-      } else {
-        const { data } = await apiService.getTickers(cursor);
-        sethasMore(data.next_url !== '' || data.next_url !== null);
-        localStorage.setItem('nextUrl', data.next_url);
-        let newData = [...tickers, ...data.results];
-        localStorage.setItem('tickers', JSON.stringify(newData));
-
-        setTickers(newData);
-        setNextUrl(data.next_url);
-      }
-    } catch (error) {
-      sethasMore(true);
-    }
-  }
-
-  const fetchMoreTickers = () => {
-    if (nextUrl && nextUrl !== prevNextUrl) {
-      let index = nextUrl.lastIndexOf('=') + 1;
-      let cursor = nextUrl.slice(index);
-
-      setPrevNextUrl(nextUrl);
-
-      getStockTickers(cursor);
-    }
-  };
+  const { tickers, hasMore, fetchMoreTickers, getStockTickers } = usePagination();
 
   useEffect(() => {
     getStockTickers();
