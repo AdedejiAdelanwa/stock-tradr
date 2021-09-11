@@ -16,6 +16,23 @@ const SectionWrapper = styled.div`
   }
 `;
 
+const SectionBlock = styled.div`
+  margin-bottom: 5px;
+  p {
+    font-weight: normal;
+  }
+  a,
+  a:link,
+  a:visited,
+  a:hover,
+  a:active {
+    color: #249cff;
+    padding: 3px 5px;
+    border: 1px solid #249cff;
+    border-radius: 16px;
+  }
+`;
+
 const Statistics = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -28,12 +45,26 @@ const StatisticsItem = styled.div`
   margin: 5px;
 `;
 
+const identityStyle = {
+  padding: '10px',
+  width: '50px',
+  height: '50px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  border: '1px solid #249cff',
+  borderRadius: '50%',
+  backgroundColor: '#ededed',
+};
+
 const StockDetails = () => {
   const location = useLocation();
   const { ticker } = location.state;
   const apiService = new ApiService();
   const [stockMetrics, setstockMetrics] = useState({});
   const [companyInfo, setCompanyInfo] = useState({});
+  const [tickerError, setTickerError] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   function getYesterdayDate() {
     const date = new Date();
@@ -53,7 +84,10 @@ const StockDetails = () => {
     }
 
     function formatNumberToTens(num) {
-      if (num < 10) return '0' + num;
+      if (num < 10) {
+        return '0' + num;
+      }
+      return num;
     }
 
     let formatedMonth = formatNumberToTens(month);
@@ -69,7 +103,7 @@ const StockDetails = () => {
       .then((res) => {
         return res.data;
       })
-      .catch((error) => alert(error));
+      .catch((error) => setTickerError(error));
   }
 
   function getCloseDay(ticker) {
@@ -99,60 +133,95 @@ const StockDetails = () => {
       <Header>
         <Link to="/stocks">&#10229;</Link>
       </Header>
-      <SectionWrapper style={{ height: '15%' }}>
-        {/* {companyInfo && companyInfo.logo ? (
-          <img src={companyInfo.logo} alt="brand" />
-        ) : (
-          <p>{stockMetrics.symbol}</p>
-        )} */}
 
-        <div>
-          <p>{companyInfo.symbol}</p>
-          <small>{companyInfo.name}</small>
-          {/* <p>
-            <sup>$</sup>
-            {stockMetrics.preMarket}
-          </p> */}
-        </div>
-      </SectionWrapper>
-      <SectionWrapper>
-        <h3>Statistics</h3>
-        <Statistics>
-          <StatisticsItem>
-            <small>Open</small>
-            <p>
-              <sup>$</sup>
-              {stockMetrics.open}
-            </p>
-          </StatisticsItem>
-          <StatisticsItem>
-            <small>Close</small>
-            <p>
-              <sup>$</sup>
-              {stockMetrics.close}
-            </p>
-          </StatisticsItem>
-          <StatisticsItem>
-            <small>High</small>
-            <p>
-              <sup>$</sup>
-              {stockMetrics.high}
-            </p>
-          </StatisticsItem>
-          <StatisticsItem>
-            <small>Low</small>
-            <p>
-              <sup>$</sup>
-              {stockMetrics.low}
-            </p>
-          </StatisticsItem>
-          <StatisticsItem>
-            <small>Volume</small>
-            <p>{stockMetrics.volume}</p>
-          </StatisticsItem>
-        </Statistics>
-      </SectionWrapper>
-      <SectionWrapper style={{ borderBottom: 'none' }}></SectionWrapper>
+      {tickerError ? (
+        <h>Oops! Not found</h>
+      ) : (
+        <>
+          <SectionWrapper style={{ height: '15%' }}>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              {imageError ? (
+                <p style={identityStyle}>{companyInfo.symbol}</p>
+              ) : (
+                <img
+                  width="50"
+                  height="50"
+                  style={{ borderRadius: '50%' }}
+                  src={companyInfo.logo}
+                  onError={setImageError(true)}
+                  alt={companyInfo.symbol}
+                />
+              )}
+            </div>
+
+            <div>
+              <p>{stockMetrics.symbol}</p>
+              <small>{companyInfo.name}</small>
+              <p>
+                <sup>$</sup>
+                {stockMetrics.preMarket}
+              </p>
+            </div>
+          </SectionWrapper>
+          <SectionWrapper>
+            <h3>Statistics</h3>
+            <Statistics>
+              <StatisticsItem>
+                <small>Open</small>
+                <p>
+                  <sup>$</sup>
+                  {stockMetrics.open}
+                </p>
+              </StatisticsItem>
+              <StatisticsItem>
+                <small>Close</small>
+                <p>
+                  <sup>$</sup>
+                  {stockMetrics.close}
+                </p>
+              </StatisticsItem>
+              <StatisticsItem>
+                <small>High</small>
+                <p>
+                  <sup>$</sup>
+                  {stockMetrics.high}
+                </p>
+              </StatisticsItem>
+              <StatisticsItem>
+                <small>Low</small>
+                <p>
+                  <sup>$</sup>
+                  {stockMetrics.low}
+                </p>
+              </StatisticsItem>
+              <StatisticsItem>
+                <small>Volume</small>
+                <p>{stockMetrics.volume}</p>
+              </StatisticsItem>
+            </Statistics>
+          </SectionWrapper>
+          <SectionWrapper style={{ borderBottom: 'none' }}>
+            <SectionBlock
+              style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}
+            >
+              <h4>About</h4>
+              {companyInfo.url && (
+                <Link to={{ pathname: companyInfo.url }} target="_blank">
+                  <small>Visit Website </small>
+                </Link>
+              )}
+            </SectionBlock>
+            <SectionBlock>
+              <small>Industry</small>
+              <p>{companyInfo.industry}</p>
+            </SectionBlock>
+            <SectionBlock>
+              <small>Description</small>
+              <p>{companyInfo.description}</p>
+            </SectionBlock>
+          </SectionWrapper>
+        </>
+      )}
     </PageWrapper>
   );
 };
