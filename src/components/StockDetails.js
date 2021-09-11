@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Skeleton from 'react-loading-skeleton';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import ApiService from '../services/apiservice';
@@ -141,25 +142,27 @@ const StockDetails = () => {
           <SectionWrapper style={{ height: '15%' }}>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               {imageError ? (
-                <p style={identityStyle}>{companyInfo.symbol}</p>
+                <p style={identityStyle}>{companyInfo.symbol || <Skeleton />}</p>
               ) : (
-                <img
-                  width="50"
-                  height="50"
-                  style={{ borderRadius: '50%' }}
-                  src={companyInfo.logo}
-                  onError={setImageError(true)}
-                  alt={companyInfo.symbol}
-                />
+                (
+                  <img
+                    width="50"
+                    height="50"
+                    style={{ borderRadius: '50%' }}
+                    src={companyInfo.logo}
+                    onError={setImageError(true)}
+                    alt={companyInfo.symbol}
+                  />
+                ) || <Skeleton />
               )}
             </div>
 
             <div>
-              <p>{stockMetrics.symbol}</p>
-              <small>{companyInfo.name}</small>
+              <p>{stockMetrics.symbol || <Skeleton />}</p>
+              <small>{companyInfo.name || <Skeleton />}</small>
               <p>
                 <sup>$</sup>
-                {stockMetrics.preMarket}
+                {stockMetrics.preMarket || <Skeleton />}
               </p>
             </div>
           </SectionWrapper>
@@ -170,33 +173,33 @@ const StockDetails = () => {
                 <small>Open</small>
                 <p>
                   <sup>$</sup>
-                  {stockMetrics.open}
+                  {stockMetrics.open || <Skeleton />}
                 </p>
               </StatisticsItem>
               <StatisticsItem>
                 <small>Close</small>
                 <p>
                   <sup>$</sup>
-                  {stockMetrics.close}
+                  {stockMetrics.close || <Skeleton />}
                 </p>
               </StatisticsItem>
               <StatisticsItem>
                 <small>High</small>
                 <p>
                   <sup>$</sup>
-                  {stockMetrics.high}
+                  {stockMetrics.high || <Skeleton />}
                 </p>
               </StatisticsItem>
               <StatisticsItem>
                 <small>Low</small>
                 <p>
                   <sup>$</sup>
-                  {stockMetrics.low}
+                  {stockMetrics.low || <Skeleton />}
                 </p>
               </StatisticsItem>
               <StatisticsItem>
                 <small>Volume</small>
-                <p>{stockMetrics.volume}</p>
+                <p>{stockMetrics.volume || <Skeleton />}</p>
               </StatisticsItem>
             </Statistics>
           </SectionWrapper>
@@ -205,19 +208,21 @@ const StockDetails = () => {
               style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}
             >
               <h4>About</h4>
-              {companyInfo.url && (
-                <Link to={{ pathname: companyInfo.url }} target="_blank">
-                  <small>Visit Website </small>
-                </Link>
-              )}
+              {companyInfo.url
+                ? (
+                    <Link to={{ pathname: companyInfo.url }} target="_blank">
+                      <small>Visit Website </small>
+                    </Link>
+                  ) || <Skeleton />
+                : ''}
             </SectionBlock>
             <SectionBlock>
               <small>Industry</small>
-              <p>{companyInfo.industry}</p>
+              <p>{companyInfo.industry || <Skeleton />}</p>
             </SectionBlock>
             <SectionBlock>
               <small>Description</small>
-              <p>{companyInfo.description}</p>
+              <p>{companyInfo.description || <Skeleton count={4} />}</p>
             </SectionBlock>
           </SectionWrapper>
         </>
