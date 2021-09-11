@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Skeleton from 'react-loading-skeleton';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import ApiService from '../services/apiservice';
 import { Header, PageWrapper } from './Stocks';
+import useFetchStockDetails from './useFetchStockdetails';
 
 const SectionWrapper = styled.div`
   height: 30%;
@@ -59,73 +59,15 @@ const identityStyle = {
 };
 
 const StockDetails = () => {
-  const location = useLocation();
-  const { ticker } = location.state;
-  const apiService = new ApiService();
-  const [stockMetrics, setstockMetrics] = useState({});
-  const [companyInfo, setCompanyInfo] = useState({});
-  const [tickerError, setTickerError] = useState(false);
-  const [imageError, setImageError] = useState(false);
+  const {
+    stockMetrics,
+    companyInfo,
+    tickerError,
+    imageError,
+    getStockDetails,
+    handleImageError,
+  } = useFetchStockDetails();
 
-  function getYesterdayDate() {
-    const date = new Date();
-    let [month, day, year] = [date.getMonth() + 1, date.getDate(), date.getFullYear()];
-    let dayBefore;
-    switch (new Date().toDateString().match(/(?:[A-z]{1}[a-z]{2})/)[0]) {
-      case 'Sun':
-        dayBefore = day - 2;
-        break;
-
-      case 'Mon':
-        dayBefore = day - 3;
-        break;
-
-      default:
-        dayBefore = day - 1;
-    }
-
-    function formatNumberToTens(num) {
-      if (num < 10) {
-        return '0' + num;
-      }
-      return num;
-    }
-
-    let formatedMonth = formatNumberToTens(month);
-    let formatedDay = formatNumberToTens(dayBefore);
-    const yesterday = [year, formatedMonth, formatedDay].join('-');
-
-    return yesterday;
-  }
-
-  function getTickerDetails(ticker) {
-    return apiService
-      .getTickerDetails(ticker.ticker)
-      .then((res) => {
-        return res.data;
-      })
-      .catch((error) => setTickerError(error));
-  }
-
-  function getCloseDay(ticker) {
-    return apiService
-      .getStockDetailsPreviousDay(ticker.ticker, getYesterdayDate())
-      .then((res) => {
-        return res.data;
-      })
-      .catch((error) => {
-        alert(error);
-      });
-  }
-
-  function getStockDetails() {
-    Promise.all([getCloseDay(ticker, getYesterdayDate()), getTickerDetails(ticker)]).then(
-      (values) => {
-        setstockMetrics(values[0]);
-        setCompanyInfo(values[1]);
-      }
-    );
-  }
   useEffect(() => {
     getStockDetails();
   }, []);
@@ -150,7 +92,7 @@ const StockDetails = () => {
                     height="50"
                     style={{ borderRadius: '50%' }}
                     src={companyInfo.logo}
-                    onError={setImageError(true)}
+                    onError={handleImageError}
                     alt={companyInfo.symbol}
                   />
                 ) || <Skeleton />
